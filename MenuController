@@ -1,0 +1,106 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class MenuController : MonoBehaviour
+{
+    [SerializeField] private Transform pauseMenu;
+    [SerializeField] private Transform settingsMenu;
+    [SerializeField] private GameObject[] tutorialPage;
+    [SerializeField] private Transform tutorialPlayButton;
+    private int currentPageNumber;
+
+    private void Start()
+    {
+        pauseMenu.gameObject.SetActive(false);
+        settingsMenu.gameObject.SetActive(false);
+        tutorialPlayButton.gameObject.SetActive(false);
+    }
+
+    private void Update()
+    {
+        PauseGame();
+    }
+
+    public void PlayButtonPressed()
+    {
+        SceneManager.LoadScene("Game");
+    }
+
+    public void SettingsButtonPressed()
+    {
+        pauseMenu.gameObject.SetActive(false);
+        settingsMenu.gameObject.SetActive(true);
+    }
+
+    public void CancelButtonPressed()
+    {
+        settingsMenu.gameObject.SetActive(false);
+        pauseMenu.gameObject.SetActive(true);
+    }
+
+    public void OKButtonPressed()
+    {
+        //Tähän tulee kutsu tallentaa muutokset volume sliderille.
+        settingsMenu.gameObject.SetActive(false);
+        pauseMenu.gameObject.SetActive(true);
+    }
+
+    public void TutorialButtonPressed()
+    {
+        SceneManager.LoadScene("Tutorial");
+        currentPageNumber = 0;
+    }
+
+    public void TutorialBackButtonPressed()
+    {
+        currentPageNumber -= 1;
+        tutorialPage[currentPageNumber].gameObject.SetActive(true);
+        tutorialPage[currentPageNumber + 1].gameObject.SetActive(false);
+    }
+
+    public void TutorialNextButtonPressed()
+    {
+        currentPageNumber += 1;
+        tutorialPage[currentPageNumber].gameObject.SetActive(true);
+        tutorialPage[currentPageNumber -1].gameObject.SetActive(false);
+        
+        if(currentPageNumber >= 7)
+        {
+            tutorialPlayButton.gameObject.SetActive(true);
+        }
+    }
+
+    public void ExitButtonPressed()
+    {
+        Application.Quit();
+    }
+
+    public void PauseGame()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("Paused");
+            Time.timeScale = 0;
+            pauseMenu.gameObject.SetActive(true);
+        }
+    }
+
+    public void ContinueButtonPressed()
+    {
+        pauseMenu.gameObject.SetActive(false);
+        Time.timeScale = 1;
+    }
+
+    public void QuitButtonPressed()
+    {
+        SceneManager.LoadScene("StartMenu");
+    }
+
+    public void PlayerDiedContinue()
+    {
+        //Reload from last checkpoint
+    }
+}
