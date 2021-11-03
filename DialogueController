@@ -1,0 +1,55 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+//Kiinnitetään DialogueController objektiin
+public class DialogueController : MonoBehaviour
+{
+    private Queue<string> sentences;
+
+    [SerializeField] private Text dialogueText;
+    [SerializeField] private Text npcnameText;
+    [SerializeField] private Image npcIcon;
+    [SerializeField] private GameObject dialogueScreen;
+
+    private void Start()
+    {
+        sentences = new Queue<string>();
+    }
+
+    public void StartDialogue(Dialogue dialogue)
+    {
+        dialogueScreen.gameObject.SetActive(true);
+        npcIcon.sprite = dialogue.npcIcon;
+        npcnameText.text = dialogue.name;
+
+        sentences.Clear();
+
+        foreach (string sentence in dialogue.sentences)
+        {
+            sentences.Enqueue(sentence);
+        }
+
+        ShowNextSentence();
+    }
+
+    public void ShowNextSentence()
+    {
+        if(sentences.Count == 0)
+        {
+            EndDialogue();
+            return;
+        }
+
+        string sentence = sentences.Dequeue();
+        dialogueText.text = sentence;
+    }
+
+    public void EndDialogue()
+    {
+        Debug.Log("End of conversation.");
+        dialogueScreen.gameObject.SetActive(false);
+    }
+}
