@@ -1,0 +1,49 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+//Kiinnitetään NPC:hen
+public class NPCDialogue : MonoBehaviour
+{
+    public Dialogue dialogue;
+    private NPCTask npcTask;
+    private TaskManager taskManager;
+
+    private void Awake()
+    {
+        taskManager = GetComponent<TaskManager>();
+        npcTask = GetComponent<NPCTask>();
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("Player in range");
+            FindObjectOfType<DialogueController>().StartDialogue(dialogue);
+            CheckIfTask();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("Player out of range");
+        }
+        if (dialogue.dialogueOnce == true)
+        {
+            Destroy(this);
+        }
+    }
+
+    public void CheckIfTask()
+    {
+        if (this.gameObject.GetComponent<NPCTask>() != null)
+        {
+            Debug.Log("Task löydetty.");
+            npcTask.CreateTask();
+            Destroy(this.npcTask);
+        }
+    }
+}
