@@ -1,0 +1,66 @@
+[System.Serializable]
+public class QnA
+{
+    public string question;
+    public string[] answers;
+    public int correctAnswer;
+}
+
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
+
+//Liitetään QuizManager nimiseen GameObjektiin. Prefab luotu.
+public class TriviaManagement : MonoBehaviour
+{
+    public List<QnA> qna;   //Tähän syötetään kysymykset ja vastaukset, sekä oikean vastausvaihtoehdon numero
+    public GameObject[] answerOptions;  //Vastausvaihtoehto buttonit tähän
+    public int currentQuestion;     //Näyttää mikä kysymys näkyvissä tällä hetkellä
+
+    public TextMeshProUGUI questionText;    //Kysymykset näyttävä tekstielementti
+
+    private void Start()
+    {
+        ChooseQuestion(); 
+    }
+
+    public void ChooseQuestion()
+    {
+        //Jos kysymyksiä on jäljellä, arvotaan yksi jäljellä olevista. Teksti muuttuu vastaamaan kysymystä.
+        if (qna.Count > 0)
+        {
+            currentQuestion = Random.Range(0, qna.Count);
+
+            questionText.text = qna[currentQuestion].question;
+            SetAnswers();
+        }
+        else
+        {
+            Debug.Log("Kaikkiin kysymyksiin on vastattu.");
+            //Tässä kuuluu estää kysymysmerkkipalojen ilmestyminen kysymysten loputtua.
+        }
+    }
+
+    private void SetAnswers()   //Asettaa buttoneille vastausvaihtoehdot.
+    {
+        for (int i = 0; i < answerOptions.Length; i++)
+        {
+            answerOptions[i].GetComponent<AnsScript>().answerIsCorrect = false;
+            answerOptions[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = qna[currentQuestion].answers[i];  //GetChild(0) sisältää teksti komponentin.
+
+            if (qna[currentQuestion].correctAnswer == i + 1)    //Jos oikeita vastauksia löytyy, selvitetään:
+            {
+                answerOptions[i].GetComponent<AnsScript>().answerIsCorrect = true;    //Missä buttonissa on oikea vastaus.
+            }
+        }
+    }
+
+    public void QuestionAnswered()
+    {
+        qna.RemoveAt(currentQuestion);  //Poistaa kysymyksen vastauksen jälkeen
+        ChooseQuestion(); //Hakee seuraavan kysymyksen ja vastaukset
+    }
+}
