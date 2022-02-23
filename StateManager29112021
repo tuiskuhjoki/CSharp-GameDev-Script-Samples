@@ -1,0 +1,182 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+//Currently found in Canvas
+public class StateManager : MonoBehaviour
+{
+    [SerializeField] private Transform optionsMenu;
+    [SerializeField] private Transform pauseMenu;
+    [SerializeField] private Transform startMenuButtons;
+
+    public static bool isPaused = false;
+
+    //currentState variable
+    private States currentState; 
+
+    public States CurrentState
+    {
+        get { return currentState; }    //finds out the current state
+        set
+        {
+            currentState = value;   //inputs new currentState value
+            ChangeState();
+        }
+    }
+
+    private void Update()
+    {
+        //Time is paused when isPaused = true + adding gamepause when game has a method to call
+        if (isPaused)
+        {
+            Time.timeScale = 0;
+            //gamepause here
+        }
+        else
+        {
+            Time.timeScale = 1;
+            //game reactivate
+        }
+    }
+
+    //deems which method is called in each state
+    public void ChangeState()
+    {
+        switch (currentState)
+        {
+            case States.STARTMENU:
+                HandleStartMenu(transform);
+                break;
+            case States.MAP:
+                HandleMap(transform);
+                break;
+            case States.MEMORYGAME:
+                HandleMemoryGame(transform);
+                break;
+            case States.PAUSE:
+                HandlePauseMenu(transform);
+                break;
+            case States.OPTIONS:
+                HandleOptionsMenu(optionsMenu.transform);
+                break;
+            case States.RETURN:
+                HandleReturn();
+                break;
+        }
+    }
+
+    public void HandleReturn()
+    {
+        //active optionsMenu is made inactive and startMenuButtons is activated if they are inactive
+        if (optionsMenu.gameObject.activeSelf)
+        {
+            optionsMenu.gameObject.SetActive(false);
+            if (!startMenuButtons.gameObject.activeSelf)
+            {
+                startMenuButtons.gameObject.SetActive(true);
+            }
+        }
+
+        //active pauseMenu is made inactive
+        if (pauseMenu.gameObject.activeSelf)
+        {
+            pauseMenu.gameObject.SetActive(false);
+            isPaused = false;
+        }
+    }
+
+    public void HandleOptionsMenu(Transform transform)
+    {
+        //activate optionsMenu, inactivate active startMenuButtons
+        optionsMenu.gameObject.SetActive(true);
+        if (startMenuButtons.gameObject.activeSelf)
+        {
+            startMenuButtons.gameObject.SetActive(false);
+        }
+
+        switch (transform.name)
+        {
+            case "Back":
+                CurrentState = States.RETURN;
+                break;
+        }
+    }
+
+    public void HandlePauseMenu(Transform transform)
+    {
+        pauseMenu.gameObject.SetActive(true);
+        isPaused = true;
+
+        //controls what is the new States value for CurrentState from each button
+        switch (transform.name)
+        {
+            case "Continue":
+                CurrentState = States.RETURN;
+                break;
+            case "Options":
+                CurrentState = States.OPTIONS;
+                break;
+            case "Quit":
+                CurrentState = States.STARTMENU;
+                break;
+        }
+    }
+
+    public void HandleMemoryGame(Transform transform)
+    {
+        if (SceneManager.GetActiveScene() != SceneManager.GetSceneByName("MemoryGame"))
+        {
+            SceneManager.LoadScene("MemoryGame");
+        }
+
+        switch (transform.name)
+        {
+            case "Pause":
+                CurrentState = States.PAUSE;
+                break;
+        }
+    }
+
+    public void HandleMap(Transform transform)
+    {
+        if (SceneManager.GetActiveScene() != SceneManager.GetSceneByName("Map"))
+        {
+            SceneManager.LoadScene("Map");
+        }
+
+        switch (transform.name)
+        {
+            case "Pause":
+                CurrentState = States.PAUSE;
+                break;
+        }
+    }
+
+    public void HandleStartMenu(Transform transform)
+    {
+        //Checks if currently active scene is StartMenu. If that's not the case, loads StartMenu.
+        if (SceneManager.GetActiveScene() != SceneManager.GetSceneByName("StartMenu"))
+        {
+            SceneManager.LoadScene("StartMenu");
+        }
+
+        switch (transform.name)
+        {
+            case "Start":
+                CurrentState = States.MAP;
+                break;
+            case "Options":
+                CurrentState = States.OPTIONS;
+                break;
+            case "Exit":
+                Application.Quit();
+                break;
+            case "Credits":
+                Debug.Log("Credits open");
+                break;
+        }
+    }
+}
